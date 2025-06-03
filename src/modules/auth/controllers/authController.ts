@@ -1,9 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions, Secret } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import prisma from '../../../lib/prisma';
 import { CreateUserDto } from '../../../types/prisma';
 import { logger } from '../../../utils/logger';
+
+const JWT_SECRET: Secret = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_OPTIONS: SignOptions = {
+  expiresIn: process.env.JWT_EXPIRES_IN || '24h'
+};
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -47,8 +52,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     // Generate JWT token
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+      JWT_SECRET,
+      JWT_OPTIONS
     );
 
     res.status(201).json({
@@ -92,8 +97,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     // Generate JWT token
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+      JWT_SECRET,
+      JWT_OPTIONS
     );
 
     res.json({
@@ -151,8 +156,8 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
     // Generate JWT token
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+      JWT_SECRET,
+      JWT_OPTIONS
     );
 
     res.json({

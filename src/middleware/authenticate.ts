@@ -1,41 +1,27 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import passport from 'passport';
 import { AppError } from './errorHandler';
+import { User } from '@prisma/client';
 
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        userId: string;
-      };
+      user?: User;
     }
   }
 }
 
-export const authenticate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
-      throw new AppError('No token provided', 401);
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate('jwt', { session: false }, (err: any, user: User | false, info: any) => {
+    if (err) {
+      return next(err);
     }
 
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'your-secret-key'
-    ) as { userId: string };
+    if (!user) {
+      return next(new AppError('Unauthorized', 401));
+    }
 
-    req.user = decoded;
+    req.user = user;
     next();
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      next(new AppError('Invalid token', 401));
-    } else {
-      next(error);
-    }
-  }
+  })(req, res, next);
 }; 

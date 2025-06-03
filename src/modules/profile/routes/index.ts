@@ -46,8 +46,8 @@ router.get('/', authenticate, getProfile);
  */
 router.put(
   '/',
+  authenticate,
   [
-    authenticate,
     body('firstName').optional().trim().notEmpty(),
     body('lastName').optional().trim().notEmpty(),
     body('email').optional().isEmail().normalizeEmail(),
@@ -82,8 +82,8 @@ router.put(
  */
 router.post(
   '/change-password',
+  authenticate,
   [
-    authenticate,
     body('currentPassword').notEmpty(),
     body('newPassword').isLength({ min: 6 }),
     validateRequest,

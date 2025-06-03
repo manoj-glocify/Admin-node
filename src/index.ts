@@ -9,6 +9,7 @@ import { roleRoutes } from './modules/roles/routes';
 import { profileRoutes } from './modules/profile/routes';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
+import './config/passport';
 
 // Load environment variables
 dotenv.config();

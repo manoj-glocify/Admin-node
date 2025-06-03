@@ -1,22 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
-import { Role } from '../models/Role';
+import prisma from '../../../lib/prisma';
+import { CreateRoleDto, UpdateRoleDto } from '../../../types/prisma';
 import { AppError } from '../../../middleware/errorHandler';
 
 export const createRole = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, description, permissions, isDefault } = req.body;
+    const { name, description, isDefault } = req.body as CreateRoleDto;
 
-    const role = await Role.create({
-      name,
-      description,
-      permissions,
-      isDefault,
+    // Check if role with same name exists
+    const existingRole = await prisma.role.findUnique({
+      where: { name }
     });
 
-    res.status(201).json({
-      message: 'Role created successfully',
-      role,
+    if (existingRole) {
+      throw new AppError('Role with this name already exists', 400);
+    }
+
+    const role = await prisma.role.create({
+      data: {
+        name,
+        description,
+        isDefault: isDefault || false
+      },
+      include: {
+        permissions: true
+      }
     });
+
+    res.status(201).json(role);
   } catch (error) {
     next(error);
   }
@@ -24,19 +35,33 @@ export const createRole = async (req: Request, res: Response, next: NextFunction
 
 export const getRoles = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const roles = await Role.find();
+    const roles = await prisma.role.findMany({
+      include: {
+        permissions: true
+      }
+    });
+
     res.json(roles);
   } catch (error) {
     next(error);
   }
 };
 
-export const getRole = async (req: Request, res: Response, next: NextFunction) => {
+export const getRoleById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const role = await Role.findById(req.params.id);
+    const { id } = req.params;
+
+    const role = await prisma.role.findUnique({
+      where: { id },
+      include: {
+        permissions: true
+      }
+    });
+
     if (!role) {
       throw new AppError('Role not found', 404);
     }
+
     res.json(role);
   } catch (error) {
     next(error);
@@ -45,27 +70,42 @@ export const getRole = async (req: Request, res: Response, next: NextFunction) =
 
 export const updateRole = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, description, permissions, isDefault } = req.body;
+    const { id } = req.params;
+    const { name, description, isDefault } = req.body as UpdateRoleDto;
 
-    const role = await Role.findByIdAndUpdate(
-      req.params.id,
-      {
-        name,
-        description,
-        permissions,
-        isDefault,
-      },
-      { new: true, runValidators: true }
-    );
+    // Check if role exists
+    const existingRole = await prisma.role.findUnique({
+      where: { id }
+    });
 
-    if (!role) {
+    if (!existingRole) {
       throw new AppError('Role not found', 404);
     }
 
-    res.json({
-      message: 'Role updated successfully',
-      role,
+    // If name is being updated, check if new name is already taken
+    if (name && name !== existingRole.name) {
+      const roleWithSameName = await prisma.role.findUnique({
+        where: { name }
+      });
+
+      if (roleWithSameName) {
+        throw new AppError('Role with this name already exists', 400);
+      }
+    }
+
+    const updatedRole = await prisma.role.update({
+      where: { id },
+      data: {
+        name,
+        description,
+        isDefault
+      },
+      include: {
+        permissions: true
+      }
     });
+
+    res.json(updatedRole);
   } catch (error) {
     next(error);
   }
@@ -73,20 +113,31 @@ export const updateRole = async (req: Request, res: Response, next: NextFunction
 
 export const deleteRole = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const role = await Role.findById(req.params.id);
-    if (!role) {
+    const { id } = req.params;
+
+    // Check if role exists
+    const existingRole = await prisma.role.findUnique({
+      where: { id }
+    });
+
+    if (!existingRole) {
       throw new AppError('Role not found', 404);
     }
 
-    if (role.isDefault) {
-      throw new AppError('Cannot delete default role', 400);
+    // Check if role is assigned to any users
+    const usersWithRole = await prisma.user.findFirst({
+      where: { roleId: id }
+    });
+
+    if (usersWithRole) {
+      throw new AppError('Cannot delete role that is assigned to users', 400);
     }
 
-    await role.deleteOne();
-
-    res.json({
-      message: 'Role deleted successfully',
+    await prisma.role.delete({
+      where: { id }
     });
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
