@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../../../lib/prisma';
-import { CreateRoleDto, UpdateRoleDto } from '../../../types/prisma';
+import { CreateRoleDto, UpdateRoleDto, PermissionDto } from '../dto/role.dto';
 import { AppError } from '../../../middleware/errorHandler';
 
 export const createRole = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, description, isDefault } = req.body as CreateRoleDto;
+    const { name, description, isDefault, permissions } = req.body as CreateRoleDto;
 
     // Check if role with same name exists
     const existingRole = await prisma.role.findUnique({
@@ -20,7 +20,13 @@ export const createRole = async (req: Request, res: Response, next: NextFunction
       data: {
         name,
         description,
-        isDefault: isDefault || false
+        isDefault: isDefault || false,
+        permissions: {
+          create: permissions?.map((permission: PermissionDto) => ({
+            module: permission.module,
+            actions: permission.actions
+          })) || []
+        }
       },
       include: {
         permissions: true
@@ -71,7 +77,7 @@ export const getRoleById = async (req: Request, res: Response, next: NextFunctio
 export const updateRole = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const { name, description, isDefault } = req.body as UpdateRoleDto;
+    const { name, description, isDefault, permissions } = req.body as UpdateRoleDto;
 
     // Check if role exists
     const existingRole = await prisma.role.findUnique({
@@ -93,12 +99,24 @@ export const updateRole = async (req: Request, res: Response, next: NextFunction
       }
     }
 
+    // First, delete existing permissions
+    await prisma.permission.deleteMany({
+      where: { roleId: id }
+    });
+
+    // Then update the role with new permissions
     const updatedRole = await prisma.role.update({
       where: { id },
       data: {
         name,
         description,
-        isDefault
+        isDefault,
+        permissions: {
+          create: permissions?.map((permission: PermissionDto) => ({
+            module: permission.module,
+            actions: permission.actions
+          })) || []
+        }
       },
       include: {
         permissions: true
@@ -133,6 +151,12 @@ export const deleteRole = async (req: Request, res: Response, next: NextFunction
       throw new AppError('Cannot delete role that is assigned to users', 400);
     }
 
+    // Delete permissions first
+    await prisma.permission.deleteMany({
+      where: { roleId: id }
+    });
+
+    // Then delete the role
     await prisma.role.delete({
       where: { id }
     });
