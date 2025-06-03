@@ -1,17 +1,18 @@
 import { PrismaClient } from '@prisma/client';
+import { logger } from '../utils/logger';
 
-const prismaClientSingleton = () => {
-  return new PrismaClient();
+const prisma = new PrismaClient({
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+});
+
+export const connectDB = async () => {
+  try {
+    await prisma.$connect();
+    logger.info('Connected to PostgreSQL database');
+  } catch (error) {
+    logger.error('PostgreSQL connection error:', error);
+    throw error;
+  }
 };
-
-declare global {
-  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
-}
-
-const prisma = globalThis.prisma ?? prismaClientSingleton();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.prisma = prisma;
-}
 
 export default prisma; 

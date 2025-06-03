@@ -5,10 +5,16 @@ import prisma from '../../../lib/prisma';
 import { CreateUserDto } from '../../../types/prisma';
 import { logger } from '../../../utils/logger';
 
+// JWT Configuration
 const JWT_SECRET: Secret = process.env.JWT_SECRET || 'your-secret-key';
 const JWT_OPTIONS: SignOptions = {
-  expiresIn: process.env.JWT_EXPIRES_IN || '24h'
+  expiresIn: '24h' // Using a fixed value to avoid type issues
 };
+
+// Validate JWT configuration
+if (!process.env.JWT_SECRET) {
+  logger.warn('JWT_SECRET is not set in environment variables. Using default secret key.');
+}
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
