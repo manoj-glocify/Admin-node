@@ -5,6 +5,14 @@ import { AppError } from '../../../middleware/errorHandler';
 import prisma from '../../../lib/prisma';
 import bcrypt from 'bcryptjs';
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User;
+    }
+  }
+}
+
 export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
@@ -81,15 +89,18 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
       throw new AppError('User not found', 404);
     }
 
+    // Verify current password
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password || '');
     if (!isPasswordValid) {
       throw new AppError('Current password is incorrect', 400);
     }
 
+    // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+    // Update password
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: req.user.id },
       data: { password: hashedPassword }
     });
 

@@ -254,7 +254,7 @@ export const requestPasswordReset = async (req: Request, res: Response, next: Ne
     // Generate reset token
     const resetToken = jwt.sign(
       { userId: user.id },
-      process.env.JWT_RESET_SECRET || JWT_SECRET,
+      process.env.JWT_RESET_SECRET || 'reset-secret',
       { expiresIn: process.env.PASSWORD_RESET_EXPIRY || '1h' }
     );
 
