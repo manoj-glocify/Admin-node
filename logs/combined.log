@@ -19,3 +19,9 @@
 {"level":"info","message":"Connected to PostgreSQL database","timestamp":"2025-06-03T10:22:36.990Z"}
 {"level":"info","message":"Server is running on port 3000","timestamp":"2025-06-03T10:22:36.993Z"}
 {"level":"info","message":"API Documentation available at http://localhost:3000/api-docs","timestamp":"2025-06-03T10:22:36.993Z"}
+{"level":"info","message":"Connected to PostgreSQL database","timestamp":"2025-06-03T10:29:31.232Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-06-03T10:29:31.236Z"}
+{"level":"info","message":"API Documentation available at http://localhost:3000/api-docs","timestamp":"2025-06-03T10:29:31.236Z"}
+{"level":"info","message":"Connected to PostgreSQL database","timestamp":"2025-06-03T10:29:47.458Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-06-03T10:29:47.461Z"}
+{"level":"info","message":"API Documentation available at http://localhost:3000/api-docs","timestamp":"2025-06-03T10:29:47.461Z"}
