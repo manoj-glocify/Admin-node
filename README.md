@@ -138,15 +138,51 @@ The application can be customized through environment variables:
 # Generate Prisma client
 npm run prisma:generate
 
-# Run migrations
+# Create a new migration
+npx prisma migrate dev --name <migration_name>
+
+# Apply pending migrations
 npm run migrate
 
-# Run migrations in production
+# Apply migrations in production
 npm run migrate:prod
+
+# Reset database (development only)
+npx prisma migrate reset
+
+# Check migration status
+npx prisma migrate status
 
 # Open Prisma Studio (database GUI)
 npm run prisma:studio
 ```
+
+### Migration Workflow
+1. Make changes to your schema in `prisma/schema.prisma`
+2. Create a new migration:
+   ```bash
+   npx prisma migrate dev --name <descriptive_name>
+   ```
+   This will:
+   - Create a new migration file
+   - Apply the migration to your database
+   - Regenerate the Prisma Client
+
+3. For production deployments:
+   ```bash
+   npm run migrate:prod
+   ```
+   This will apply pending migrations without modifying the schema.
+
+4. If you need to reset your database (development only):
+   ```bash
+   npx prisma migrate reset
+   ```
+   This will:
+   - Drop all tables
+   - Recreate the database
+   - Apply all migrations
+   - Run seed scripts (if any)
 
 ## API Endpoints
 

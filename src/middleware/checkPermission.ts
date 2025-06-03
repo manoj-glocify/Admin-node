@@ -1,21 +1,39 @@
 import { Request, Response, NextFunction } from 'express';
+import { User } from '@prisma/client';
 import { AppError } from './errorHandler';
-import { User } from '../modules/auth/models/User';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export const checkPermission = (module: string, action: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = await User.findById(req.user?.userId).populate('role');
+      const user = req.user as User;
+      
       if (!user) {
-        throw new AppError('User not found', 404);
+        throw new AppError('Unauthorized', 401);
       }
 
-      const role = user.role as any;
-      const permission = role.permissions.find(
-        (p: any) => p.module === module && p.actions.includes(action)
+      const userWithRole = await prisma.user.findUnique({
+        where: { id: user.id },
+        include: {
+          role: {
+            include: {
+              permissions: true
+            }
+          }
+        }
+      });
+
+      if (!userWithRole?.role) {
+        throw new AppError('No role assigned', 403);
+      }
+
+      const hasPermission = userWithRole.role.permissions.some(
+        (permission) => permission.module === module && permission.actions.includes(action)
       );
 
-      if (!permission) {
+      if (!hasPermission) {
         throw new AppError('Permission denied', 403);
       }
 
