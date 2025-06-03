@@ -9,6 +9,7 @@ import {
 } from '../controllers/roleController';
 import { validateRequest } from '../../../middleware/validateRequest';
 import { checkPermission } from '../../../middleware/checkPermission';
+import { authenticate } from '../../../middleware/authenticate';
 
 const router = Router();
 
@@ -18,6 +19,8 @@ const router = Router();
  *   post:
  *     tags: [Roles]
  *     summary: Create a new role
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -37,6 +40,8 @@ const router = Router();
  */
 router.post(
   '/',
+  authenticate,
+  checkPermission('roles', 'create'),
   [
     body('name').trim().notEmpty(),
     body('description').trim().notEmpty(),
@@ -52,8 +57,10 @@ router.post(
  *   get:
  *     tags: [Roles]
  *     summary: Get all roles
+ *     security:
+ *       - bearerAuth: []
  */
-router.get('/', getRoles);
+router.get('/', authenticate, checkPermission('roles', 'read'), getRoles);
 
 /**
  * @swagger
@@ -61,6 +68,8 @@ router.get('/', getRoles);
  *   get:
  *     tags: [Roles]
  *     summary: Get role by ID
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -68,7 +77,7 @@ router.get('/', getRoles);
  *         schema:
  *           type: string
  */
-router.get('/:id', getRoleById);
+router.get('/:id', authenticate, checkPermission('roles', 'read'), getRoleById);
 
 /**
  * @swagger
@@ -76,6 +85,8 @@ router.get('/:id', getRoleById);
  *   put:
  *     tags: [Roles]
  *     summary: Update role
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -98,6 +109,8 @@ router.get('/:id', getRoleById);
  */
 router.put(
   '/:id',
+  authenticate,
+  checkPermission('roles', 'update'),
   [
     body('name').optional().trim().notEmpty(),
     body('description').optional().trim().notEmpty(),
@@ -113,6 +126,8 @@ router.put(
  *   delete:
  *     tags: [Roles]
  *     summary: Delete role
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -120,6 +135,6 @@ router.put(
  *         schema:
  *           type: string
  */
-router.delete('/:id', deleteRole);
+router.delete('/:id', authenticate, checkPermission('roles', 'delete'), deleteRole);
 
 export const roleRoutes = router; 

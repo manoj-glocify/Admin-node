@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Admin API",
-    "description": "API collection for Admin Template",
+    "description": "API collection for Admin Template with JWT Authentication",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -53,7 +53,7 @@
                   "mode": "raw",
                   "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
                 },
-                "description": "Login with email and password"
+                "description": "Login with email and password. Returns JWT token for authentication."
               }
             },
             {
@@ -83,7 +83,7 @@
                   "host": ["{{base_url}}"],
                   "path": ["auth", "logout"]
                 },
-                "description": "Logout user"
+                "description": "Logout user. Requires JWT token."
               }
             },
             {
@@ -109,7 +109,7 @@
                   "mode": "raw",
                   "raw": "{\n    \"currentPassword\": \"oldpassword\",\n    \"newPassword\": \"newpassword\"\n}"
                 },
-                "description": "Change user password. Sends password changed notification email."
+                "description": "Change user password. Requires JWT token. Sends password changed notification email."
               }
             },
             {
@@ -176,7 +176,7 @@
                   "host": ["{{base_url}}"],
                   "path": ["roles"]
                 },
-                "description": "Get all roles"
+                "description": "Get all roles. Requires JWT token and 'roles:read' permission."
               }
             },
             {
@@ -202,7 +202,7 @@
                   "mode": "raw",
                   "raw": "{\n    \"name\": \"Admin\",\n    \"description\": \"Administrator role\",\n    \"permissions\": [\n        {\n            \"module\": \"users\",\n            \"actions\": [\"create\", \"read\", \"update\", \"delete\"]\n        }\n    ]\n}"
                 },
-                "description": "Create a new role"
+                "description": "Create a new role. Requires JWT token and 'roles:create' permission."
               }
             },
             {
@@ -226,7 +226,7 @@
                     }
                   ]
                 },
-                "description": "Get role by ID"
+                "description": "Get role by ID. Requires JWT token and 'roles:read' permission."
               }
             },
             {
@@ -258,7 +258,7 @@
                   "mode": "raw",
                   "raw": "{\n    \"name\": \"Updated Role\",\n    \"description\": \"Updated description\",\n    \"permissions\": [\n        {\n            \"module\": \"users\",\n            \"actions\": [\"read\"]\n        }\n    ]\n}"
                 },
-                "description": "Update role by ID"
+                "description": "Update role by ID. Requires JWT token and 'roles:update' permission."
               }
             },
             {
@@ -282,7 +282,7 @@
                     }
                   ]
                 },
-                "description": "Delete role by ID"
+                "description": "Delete role by ID. Requires JWT token and 'roles:delete' permission."
               }
             }
           ]
@@ -305,7 +305,7 @@
                   "host": ["{{base_url}}"],
                   "path": ["profile"]
                 },
-                "description": "Get user profile"
+                "description": "Get user profile. Requires JWT token."
               }
             },
             {
@@ -331,7 +331,7 @@
                   "mode": "raw",
                   "raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"Name\",\n    \"email\": \"updated@example.com\"\n}"
                 },
-                "description": "Update user profile"
+                "description": "Update user profile. Requires JWT token."
               }
             }
           ]
