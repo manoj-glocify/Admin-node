@@ -30,7 +30,8 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\"\n}"
-                }
+                },
+                "description": "Register a new user. Sends welcome email to user and notification to admin."
               }
             },
             {
@@ -51,7 +52,8 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
-                }
+                },
+                "description": "Login with email and password"
               }
             },
             {
@@ -62,7 +64,8 @@
                   "raw": "{{base_url}}/auth/google",
                   "host": ["{{base_url}}"],
                   "path": ["auth", "google"]
-                }
+                },
+                "description": "Initiate Google OAuth login"
               }
             },
             {
@@ -79,7 +82,78 @@
                   "raw": "{{base_url}}/auth/logout",
                   "host": ["{{base_url}}"],
                   "path": ["auth", "logout"]
-                }
+                },
+                "description": "Logout user"
+              }
+            },
+            {
+              "name": "Change Password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/auth/change-password",
+                  "host": ["{{base_url}}"],
+                  "path": ["auth", "change-password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"currentPassword\": \"oldpassword\",\n    \"newPassword\": \"newpassword\"\n}"
+                },
+                "description": "Change user password. Sends password changed notification email."
+              }
+            },
+            {
+              "name": "Request Password Reset",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/auth/request-reset",
+                  "host": ["{{base_url}}"],
+                  "path": ["auth", "request-reset"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"user@example.com\"\n}"
+                },
+                "description": "Request password reset link. Sends reset link to user's email."
+              }
+            },
+            {
+              "name": "Reset Password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/auth/reset-password",
+                  "host": ["{{base_url}}"],
+                  "path": ["auth", "reset-password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"token\": \"reset-token-from-email\",\n    \"newPassword\": \"newpassword\"\n}"
+                },
+                "description": "Reset password using token from email. Sends password changed notification."
               }
             }
           ]
@@ -101,7 +175,8 @@
                   "raw": "{{base_url}}/roles",
                   "host": ["{{base_url}}"],
                   "path": ["roles"]
-                }
+                },
+                "description": "Get all roles"
               }
             },
             {
@@ -126,7 +201,8 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n    \"name\": \"Admin\",\n    \"description\": \"Administrator role\",\n    \"permissions\": [\n        {\n            \"module\": \"users\",\n            \"actions\": [\"create\", \"read\", \"update\", \"delete\"]\n        }\n    ]\n}"
-                }
+                },
+                "description": "Create a new role"
               }
             },
             {
@@ -149,7 +225,8 @@
                       "value": "1"
                     }
                   ]
-                }
+                },
+                "description": "Get role by ID"
               }
             },
             {
@@ -180,7 +257,8 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n    \"name\": \"Updated Role\",\n    \"description\": \"Updated description\",\n    \"permissions\": [\n        {\n            \"module\": \"users\",\n            \"actions\": [\"read\"]\n        }\n    ]\n}"
-                }
+                },
+                "description": "Update role by ID"
               }
             },
             {
@@ -203,7 +281,8 @@
                       "value": "1"
                     }
                   ]
-                }
+                },
+                "description": "Delete role by ID"
               }
             }
           ]
@@ -225,7 +304,8 @@
                   "raw": "{{base_url}}/profile",
                   "host": ["{{base_url}}"],
                   "path": ["profile"]
-                }
+                },
+                "description": "Get user profile"
               }
             },
             {
@@ -250,32 +330,8 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"Name\",\n    \"email\": \"updated@example.com\"\n}"
-                }
-              }
-            },
-            {
-              "name": "Change Password",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{token}}"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/profile/change-password",
-                  "host": ["{{base_url}}"],
-                  "path": ["profile", "change-password"]
                 },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"currentPassword\": \"oldpassword\",\n    \"newPassword\": \"newpassword\"\n}"
-                }
+                "description": "Update user profile"
               }
             }
           ]

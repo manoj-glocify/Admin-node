@@ -1,14 +1,23 @@
 import { Router } from 'express';
 import passport from 'passport';
 import { body } from 'express-validator';
-import { register, login, googleCallback, logout } from '../controllers/authController';
+import { authenticate } from '../../../middleware/authenticate';
+import {
+  register,
+  login,
+  googleCallback,
+  logout,
+  changePassword,
+  requestPasswordReset,
+  resetPassword
+} from '../controllers/authController';
 import { validateRequest } from '../../../middleware/validateRequest';
 
 const router = Router();
 
 /**
  * @swagger
- * /api/auth/register:
+ * /auth/register:
  *   post:
  *     tags: [Auth]
  *     summary: Register a new user
@@ -49,7 +58,7 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/login:
+ * /auth/login:
  *   post:
  *     tags: [Auth]
  *     summary: Login user
@@ -81,7 +90,7 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/google:
+ * /auth/google:
  *   get:
  *     tags: [Auth]
  *     summary: Google OAuth login
@@ -93,7 +102,7 @@ router.get(
 
 /**
  * @swagger
- * /api/auth/google/callback:
+ * /auth/google/callback:
  *   get:
  *     tags: [Auth]
  *     summary: Google OAuth callback
@@ -106,11 +115,81 @@ router.get(
 
 /**
  * @swagger
- * /api/auth/logout:
+ * /auth/logout:
  *   post:
  *     tags: [Auth]
  *     summary: Logout user
+ *     security:
+ *       - bearerAuth: []
  */
-router.post('/logout', logout);
+router.post('/logout', authenticate, logout);
+
+/**
+ * @swagger
+ * /auth/change-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Change user password
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ */
+router.post('/change-password', authenticate, changePassword);
+
+/**
+ * @swagger
+ * /auth/request-reset:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Request password reset
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ */
+router.post('/request-reset', requestPasswordReset);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Reset password using token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - newPassword
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ */
+router.post('/reset-password', resetPassword);
 
 export const authRoutes = router; 

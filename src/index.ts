@@ -47,11 +47,54 @@ const swaggerOptions = {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
+          description: 'Enter your JWT token in the format: Bearer <token>'
         },
       },
+      schemas: {
+        Error: {
+          type: 'object',
+          properties: {
+            message: {
+              type: 'string',
+              description: 'Error message'
+            }
+          }
+        },
+        User: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              format: 'uuid'
+            },
+            email: {
+              type: 'string',
+              format: 'email'
+            },
+            firstName: {
+              type: 'string'
+            },
+            lastName: {
+              type: 'string'
+            },
+            role: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'string',
+                  format: 'uuid'
+                },
+                name: {
+                  type: 'string'
+                }
+              }
+            }
+          }
+        }
+      }
     },
     security: [{
-      bearerAuth: [],
+      bearerAuth: []
     }],
   },
   apis: ['./src/modules/**/routes/*.ts'],

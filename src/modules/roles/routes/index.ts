@@ -14,7 +14,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/roles:
+ * /roles:
  *   post:
  *     tags: [Roles]
  *     summary: Create a new role
@@ -48,7 +48,7 @@ router.post(
 
 /**
  * @swagger
- * /api/roles:
+ * /roles:
  *   get:
  *     tags: [Roles]
  *     summary: Get all roles
@@ -57,7 +57,7 @@ router.get('/', getRoles);
 
 /**
  * @swagger
- * /api/roles/{id}:
+ * /roles/{id}:
  *   get:
  *     tags: [Roles]
  *     summary: Get role by ID
@@ -72,7 +72,7 @@ router.get('/:id', getRoleById);
 
 /**
  * @swagger
- * /api/roles/{id}:
+ * /roles/{id}:
  *   put:
  *     tags: [Roles]
  *     summary: Update role
@@ -109,7 +109,7 @@ router.put(
 
 /**
  * @swagger
- * /api/roles/{id}:
+ * /roles/{id}:
  *   delete:
  *     tags: [Roles]
  *     summary: Delete role

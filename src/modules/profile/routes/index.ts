@@ -12,7 +12,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/profile:
+ * /profile:
  *   get:
  *     tags: [Profile]
  *     summary: Get user profile
@@ -23,7 +23,7 @@ router.get('/', authenticate, getProfile);
 
 /**
  * @swagger
- * /api/profile:
+ * /profile:
  *   put:
  *     tags: [Profile]
  *     summary: Update user profile
@@ -58,7 +58,7 @@ router.put(
 
 /**
  * @swagger
- * /api/profile/change-password:
+ * /profile/change-password:
  *   post:
  *     tags: [Profile]
  *     summary: Change user password

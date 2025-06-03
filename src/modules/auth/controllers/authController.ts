@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import prisma from '../../../lib/prisma';
 import { CreateUserDto } from '../../../types/prisma';
 import { logger } from '../../../utils/logger';
+import { emailService } from '../../notifications/services/emailService';
 
 // JWT Configuration
 const JWT_SECRET: Secret = process.env.JWT_SECRET || 'your-secret-key';
@@ -54,6 +55,18 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         role: true
       }
     });
+
+    // Send welcome email to user
+    await emailService.sendUserRegistrationNotification(email, firstName);
+
+    // Send notification to admin
+    if (process.env.ADMIN_EMAIL) {
+      await emailService.sendAdminNewUserNotification(process.env.ADMIN_EMAIL, {
+        firstName,
+        lastName,
+        email,
+      });
+    }
 
     // Generate JWT token
     const token = jwt.sign(
@@ -186,4 +199,98 @@ export const logout = async (req: Request, res: Response) => {
   // Since we're using JWT, we don't need to do anything on the server side
   // The client should remove the token
   res.json({ message: 'Logged out successfully' });
+};
+
+export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = (req.user as any).userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password || '');
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword }
+    });
+
+    // Send password changed notification
+    await emailService.sendPasswordChangedNotification(user.email, user.firstName);
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const requestPasswordReset = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (!user) {
+      // Don't reveal that the user doesn't exist
+      return res.json({ message: 'If your email is registered, you will receive a password reset link' });
+    }
+
+    // Generate reset token
+    const resetToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_RESET_SECRET || JWT_SECRET,
+      { expiresIn: process.env.PASSWORD_RESET_EXPIRY || '1h' }
+    );
+
+    // Send reset link email
+    await emailService.sendPasswordResetLink(user.email, user.firstName, resetToken);
+
+    res.json({ message: 'If your email is registered, you will receive a password reset link' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET || JWT_SECRET) as { userId: string };
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    const user = await prisma.user.update({
+      where: { id: decoded.userId },
+      data: { password: hashedPassword }
+    });
+
+    // Send password changed notification
+    await emailService.sendPasswordChangedNotification(user.email, user.firstName);
+
+    res.json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+    next(error);
+  }
 }; 
