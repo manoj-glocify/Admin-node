@@ -56,16 +56,22 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       }
     });
 
-    // Send welcome email to user
-    await emailService.sendUserRegistrationNotification(email, firstName);
+    // Try to send emails, but don't fail if they don't send
+    try {
+      // Send welcome email to user
+      await emailService.sendUserRegistrationNotification(email, firstName);
 
-    // Send notification to admin
-    if (process.env.ADMIN_EMAIL) {
-      await emailService.sendAdminNewUserNotification(process.env.ADMIN_EMAIL, {
-        firstName,
-        lastName,
-        email,
-      });
+      // Send notification to admin
+      if (process.env.ADMIN_EMAIL) {
+        await emailService.sendAdminNewUserNotification(process.env.ADMIN_EMAIL, {
+          firstName,
+          lastName,
+          email,
+        });
+      }
+    } catch (emailError) {
+      // Log the email error but continue with registration
+      logger.warn('Failed to send registration emails:', emailError);
     }
 
     // Generate JWT token
@@ -254,8 +260,8 @@ export const requestPasswordReset = async (req: Request, res: Response, next: Ne
     // Generate reset token
     const resetToken = jwt.sign(
       { userId: user.id },
-      process.env.JWT_RESET_SECRET || 'reset-secret',
-      { expiresIn: process.env.PASSWORD_RESET_EXPIRY || '1h' }
+      process.env.JWT_RESET_SECRET || JWT_SECRET,
+      { expiresIn: '1h' } as SignOptions
     );
 
     // Send reset link email
