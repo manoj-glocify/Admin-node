@@ -75,6 +75,7 @@ export const register = async (
     //   });
     // }
 
+
     // Generate JWT token
     const token = jwt.sign({userId: user.id}, JWT_SECRET, JWT_OPTIONS);
 
@@ -273,9 +274,9 @@ export const requestPasswordReset = async (
 
     // Generate reset token
     const resetToken = jwt.sign(
-      {userId: user.id},
-      process.env.JWT_RESET_SECRET || "reset-secret",
-      {expiresIn: process.env.PASSWORD_RESET_EXPIRY || "1h"}
+      { userId: user.id },
+      process.env.JWT_RESET_SECRET || JWT_SECRET,
+      { expiresIn: '1h' } as SignOptions
     );
 
     // Send reset link email
