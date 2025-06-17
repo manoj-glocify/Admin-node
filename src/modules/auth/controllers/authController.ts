@@ -349,16 +349,3 @@ export const dashboardData = async (
   }
 };
 
-export const profileLists = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userlists = await prisma.user.findMany();
-    res.json({userlists});
-    // res.json(user);
-  } catch (error) {
-    next(error);
-  }
-};

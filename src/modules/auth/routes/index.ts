@@ -11,7 +11,6 @@ import {
   requestPasswordReset,
   resetPassword,
   dashboardData,
-  profileLists,
 } from "../controllers/authController";
 import {validateRequest} from "../../../middleware/validateRequest";
 
@@ -204,16 +203,5 @@ router.post("/reset-password", resetPassword);
  *       - bearerAuth: []
  */
 router.get("/dashboard", authenticate, dashboardData);
-
-/**
- * @swagger
- * /userlists:
- *   get:
- *     tags: [userlists]
- *     summary: Get userlists information
- *     security:
- *       - bearerAuth: []
- */
-router.get("/userlists", authenticate, profileLists);
 
 export const authRoutes = router;
