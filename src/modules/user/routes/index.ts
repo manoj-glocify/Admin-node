@@ -4,6 +4,8 @@ import {
   profileLists,
   createUser,
   getUserById,
+  updateUserData,
+  deleteUser,
 } from "../controllers/userController";
 import {validateRequest} from "../../../middleware/validateRequest";
 import {authenticate} from "../../../middleware/authenticate";
@@ -73,5 +75,59 @@ router.post(
  *       - bearerAuth: []
  */
 router.get("/:id", authenticate, getUserById);
+
+/**
+ * @swagger
+ * /update/user:
+ *   put:
+ *     tags: [user]
+ *     summary: Update user info
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ */
+router.put(
+  "/update/:id",
+  authenticate,
+  [
+    body("firstName").optional().trim().notEmpty(),
+    body("lastName").optional().trim().notEmpty(),
+    body("email").optional().isEmail().normalizeEmail(),
+    // body("isActive").optional().isBoolean().toBoolean,
+    body("roleId").optional().trim().notEmpty(),
+    validateRequest,
+  ],
+  updateUserData
+);
+
+/**
+ * @swagger
+ * /roles/{id}:
+ *   delete:
+ *     tags: [Roles]
+ *     summary: Delete role
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ */
+router.delete("/delete/:id", authenticate, deleteUser);
 
 export const userRoutes = router;

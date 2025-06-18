@@ -8,5 +8,13 @@ export const userSchema = z.object({
   roleId: z.string().min(2),
 });
 
-export type RegisterDto = z.infer<typeof userSchema>;
-// export type LoginDto = z.infer<typeof loginSchema>;
+export const updateUserSchema = z.object({
+  firstName: z.string().min(2).optional(),
+  lastName: z.string().min(2).optional(),
+  email: z.string().email().optional(),
+  isActive: z.boolean().optional(),
+  roleId: z.string().min(2),
+});
+
+export type UserDto = z.infer<typeof userSchema>;
+export type UserUpdateDto = z.infer<typeof updateUserSchema>;
