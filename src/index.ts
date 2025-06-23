@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import helmet from "helmet";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
@@ -28,7 +29,14 @@ app.use(
 );
 app.use(express.json());
 app.use(morgan("dev"));
-
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "..", "uploads"), {
+    setHeaders: (res) => {
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  })
+);
 // Swagger configuration
 const swaggerOptions = {
   definition: {
@@ -117,6 +125,7 @@ app.use(`${basePath}/auth`, authRoutes);
 app.use(`${basePath}/roles`, roleRoutes);
 app.use(`${basePath}/profile`, profileRoutes);
 app.use(`${basePath}/user`, userRoutes);
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Error handling
 app.use(errorHandler);
