@@ -1,15 +1,15 @@
-import { Router } from 'express';
-import { body } from 'express-validator';
+import {Router} from "express";
+import {body} from "express-validator";
 import {
   createRole,
   getRoles,
   getRoleById,
   updateRole,
   deleteRole,
-} from '../controllers/roleController';
-import { validateRequest } from '../../../middleware/validateRequest';
-import { checkPermission } from '../../../middleware/checkPermission';
-import { authenticate } from '../../../middleware/authenticate';
+} from "../controllers/roleController";
+import {validateRequest} from "../../../middleware/validateRequest";
+import {checkPermission} from "../../../middleware/checkPermission";
+import {authenticate} from "../../../middleware/authenticate";
 
 const router = Router();
 
@@ -39,13 +39,13 @@ const router = Router();
  *                 type: boolean
  */
 router.post(
-  '/',
+  "/",
   authenticate,
-  checkPermission('roles', 'create'),
+  checkPermission("roles", "create"),
   [
-    body('name').trim().notEmpty(),
-    body('description').trim().notEmpty(),
-    body('isDefault').optional().isBoolean(),
+    body("name").trim().notEmpty(),
+    body("description").trim().notEmpty(),
+    body("isDefault").optional().isBoolean(),
     validateRequest,
   ],
   createRole
@@ -60,7 +60,7 @@ router.post(
  *     security:
  *       - bearerAuth: []
  */
-router.get('/', authenticate, checkPermission('roles', 'read'), getRoles);
+router.get("/", authenticate, checkPermission("admin", "read"), getRoles);
 
 /**
  * @swagger
@@ -77,7 +77,7 @@ router.get('/', authenticate, checkPermission('roles', 'read'), getRoles);
  *         schema:
  *           type: string
  */
-router.get('/:id', authenticate, checkPermission('roles', 'read'), getRoleById);
+router.get("/:id", authenticate, checkPermission("roles", "read"), getRoleById);
 
 /**
  * @swagger
@@ -108,13 +108,13 @@ router.get('/:id', authenticate, checkPermission('roles', 'read'), getRoleById);
  *                 type: boolean
  */
 router.put(
-  '/:id',
+  "/:id",
   authenticate,
-  checkPermission('roles', 'update'),
+  checkPermission("roles", "update"),
   [
-    body('name').optional().trim().notEmpty(),
-    body('description').optional().trim().notEmpty(),
-    body('isDefault').optional().isBoolean(),
+    body("name").optional().trim().notEmpty(),
+    body("description").optional().trim().notEmpty(),
+    body("isDefault").optional().isBoolean(),
     validateRequest,
   ],
   updateRole
@@ -135,6 +135,12 @@ router.put(
  *         schema:
  *           type: string
  */
-router.delete('/:id', authenticate, checkPermission('roles', 'delete'), deleteRole);
+router.delete(
+  "/:id",
+  authenticate,
+  checkPermission("roles", "delete"),
+  deleteRole
+);
 
-export const roleRoutes = router; 
+
+export const roleRoutes = router;

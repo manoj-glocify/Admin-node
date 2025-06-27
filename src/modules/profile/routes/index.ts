@@ -1,13 +1,25 @@
-import { Router } from 'express';
-import { body } from 'express-validator';
+import {Router} from "express";
+import {body} from "express-validator";
 import {
   getProfile,
   updateProfile,
   changePassword,
-} from '../controllers/profileController';
-import { validateRequest } from '../../../middleware/validateRequest';
-import { authenticate } from '../../../middleware/authenticate';
+  updateProfilePic,
+} from "../controllers/profileController";
+import {validateRequest} from "../../../middleware/validateRequest";
+import {authenticate} from "../../../middleware/authenticate";
+import multer from "multer";
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Ensure this folder exists
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({storage});
 const router = Router();
 
 /**
@@ -19,7 +31,7 @@ const router = Router();
  *     security:
  *       - bearerAuth: []
  */
-router.get('/', authenticate, getProfile);
+router.get("/", authenticate, getProfile);
 
 /**
  * @swagger
@@ -45,12 +57,12 @@ router.get('/', authenticate, getProfile);
  *                 format: email
  */
 router.put(
-  '/',
+  "/",
   authenticate,
   [
-    body('firstName').optional().trim().notEmpty(),
-    body('lastName').optional().trim().notEmpty(),
-    body('email').optional().isEmail().normalizeEmail(),
+    body("firstName").optional().trim().notEmpty(),
+    body("lastName").optional().trim().notEmpty(),
+    body("email").optional().isEmail().normalizeEmail(),
     validateRequest,
   ],
   updateProfile
@@ -81,14 +93,21 @@ router.put(
  *                 minLength: 6
  */
 router.post(
-  '/change-password',
+  "/change-password",
   authenticate,
   [
-    body('currentPassword').notEmpty(),
-    body('newPassword').isLength({ min: 6 }),
+    body("currentPassword").notEmpty(),
+    body("newPassword").isLength({min: 6}),
     validateRequest,
   ],
   changePassword
 );
 
-export const profileRoutes = router; 
+router.put(
+  "/update-pic",
+  authenticate,
+  upload.single("image"),
+  updateProfilePic
+);
+
+export const profileRoutes = router;
