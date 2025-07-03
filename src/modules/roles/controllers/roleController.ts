@@ -57,8 +57,6 @@ export const getRoles = async (
         users: true,
       },
     });
-    // console.log("ddd", roles);
-
     res.json(roles);
   } catch (error) {
     next(error);

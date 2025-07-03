@@ -26,7 +26,11 @@ export const getProfile = async (
     const user = await prisma.user.findUnique({
       where: {id: req.user.id},
       include: {
-        role: true,
+        role: {
+          include: {
+            permissions: true,
+          },
+        },
       },
     });
 
@@ -140,7 +144,7 @@ export const updateProfilePic = async (
 
     const updatedUser = await prisma.user.update({
       where: {id: req.user.id},
-      data: {avartar: imagePath},
+      data: {avatar: imagePath},
     });
 
     if (!updatedUser) {

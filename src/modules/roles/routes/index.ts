@@ -60,7 +60,7 @@ router.post(
  *     security:
  *       - bearerAuth: []
  */
-router.get("/", authenticate, checkPermission("admin", "read"), getRoles);
+router.get("/", authenticate, checkPermission("roles", "read"), getRoles);
 
 /**
  * @swagger
@@ -141,6 +141,5 @@ router.delete(
   checkPermission("roles", "delete"),
   deleteRole
 );
-
 
 export const roleRoutes = router;

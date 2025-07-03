@@ -75,7 +75,6 @@ export const register = async (
     //   });
     // }
 
-
     // Generate JWT token
     const token = jwt.sign({userId: user.id}, JWT_SECRET, JWT_OPTIONS);
 
@@ -107,7 +106,16 @@ export const login = async (
     const user = await prisma.user.findUnique({
       where: {email},
       include: {
-        role: true,
+        role: {
+          include: {
+            permissions: {
+              select: {
+                module: true,
+                actions: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -274,9 +282,9 @@ export const requestPasswordReset = async (
 
     // Generate reset token
     const resetToken = jwt.sign(
-      { userId: user.id },
+      {userId: user.id},
       process.env.JWT_RESET_SECRET || JWT_SECRET,
-      { expiresIn: '1h' } as SignOptions
+      {expiresIn: "1h"} as SignOptions
     );
 
     // Send reset link email
@@ -339,14 +347,13 @@ export const dashboardData = async (
   next: NextFunction
 ) => {
   try {
-    const profileCount = await prisma.user.count();
-    const RolesCount = await prisma.role.count();
-    const PerMissions = await prisma.permission.count();
+    const users = await prisma.user.count();
+    const roles = await prisma.role.count();
+    const permissions = await prisma.permission.count();
 
-    res.json({profileCount, RolesCount, PerMissions});
+    res.json({users, roles, permissions});
     // res.json(user);
   } catch (error) {
     next(error);
   }
 };
-
