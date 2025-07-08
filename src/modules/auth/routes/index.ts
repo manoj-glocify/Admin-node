@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import passport from 'passport';
-import { body } from 'express-validator';
-import { authenticate } from '../../../middleware/authenticate';
+import {Router} from "express";
+import passport from "passport";
+import {body} from "express-validator";
+import {authenticate} from "../../../middleware/authenticate";
 import {
   register,
   login,
@@ -9,9 +9,10 @@ import {
   logout,
   changePassword,
   requestPasswordReset,
-  resetPassword
-} from '../controllers/authController';
-import { validateRequest } from '../../../middleware/validateRequest';
+  resetPassword,
+  dashboardData,
+} from "../controllers/authController";
+import {validateRequest} from "../../../middleware/validateRequest";
 
 const router = Router();
 
@@ -45,12 +46,12 @@ const router = Router();
  *                 type: string
  */
 router.post(
-  '/register',
+  "/register",
   [
-    body('email').isEmail().normalizeEmail(),
-    body('password').isLength({ min: 6 }),
-    body('firstName').trim().notEmpty(),
-    body('lastName').trim().notEmpty(),
+    body("email").isEmail().normalizeEmail(),
+    body("password").isLength({min: 6}),
+    body("firstName").trim().notEmpty(),
+    body("lastName").trim().notEmpty(),
     validateRequest,
   ],
   register
@@ -79,10 +80,10 @@ router.post(
  *                 type: string
  */
 router.post(
-  '/login',
+  "/login",
   [
-    body('email').isEmail().normalizeEmail(),
-    body('password').notEmpty(),
+    body("email").isEmail().normalizeEmail(),
+    body("password").notEmpty(),
     validateRequest,
   ],
   login
@@ -96,8 +97,8 @@ router.post(
  *     summary: Google OAuth login
  */
 router.get(
-  '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  "/google",
+  passport.authenticate("google", {scope: ["profile", "email"]})
 );
 
 /**
@@ -108,8 +109,8 @@ router.get(
  *     summary: Google OAuth callback
  */
 router.get(
-  '/google/callback',
-  passport.authenticate('google', { session: false }),
+  "/google/callback",
+  passport.authenticate("google", {session: false}),
   googleCallback
 );
 
@@ -122,7 +123,7 @@ router.get(
  *     security:
  *       - bearerAuth: []
  */
-router.post('/logout', authenticate, logout);
+router.post("/logout", authenticate, logout);
 
 /**
  * @swagger
@@ -147,7 +148,7 @@ router.post('/logout', authenticate, logout);
  *               newPassword:
  *                 type: string
  */
-router.post('/change-password', authenticate, changePassword);
+router.post("/change-password", authenticate, changePassword);
 
 /**
  * @swagger
@@ -167,7 +168,7 @@ router.post('/change-password', authenticate, changePassword);
  *               email:
  *                 type: string
  */
-router.post('/request-reset', requestPasswordReset);
+router.post("/request-reset", requestPasswordReset);
 
 /**
  * @swagger
@@ -190,6 +191,17 @@ router.post('/request-reset', requestPasswordReset);
  *               newPassword:
  *                 type: string
  */
-router.post('/reset-password', resetPassword);
+router.post("/reset-password", resetPassword);
 
-export const authRoutes = router; 
+/**
+ * @swagger
+ * /dashboard:
+ *   get:
+ *     tags: [dashboard]
+ *     summary: Get dashboard information
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/dashboard", authenticate, dashboardData);
+
+export const authRoutes = router;
