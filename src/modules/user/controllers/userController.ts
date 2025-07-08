@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from "express";
 // import {User} from "@prisma/client";
-import {updateUserSchema} from "../dto/user.dto";
+import {updateUserSchema, UserUpdateDto} from "../dto/user.dto";
 import {AppError} from "../../../middleware/errorHandler";
 import prisma from "../../../lib/prisma";
 import bcrypt from "bcryptjs";
@@ -102,10 +102,10 @@ export const updateUserData = async (
     }
 
     const {firstName, lastName, email, isActive, roleId} =
-      req.body as updateUserSchema;
+      req.body as UserUpdateDto;
 
     // Check if email is already taken by another user
-    if (email && email !== req.user.email) {
+    if (email && email !== (req.user as any).email) {
       const existingUser = await prisma.user.findFirst({
         where: {
           AND: [{email: email}, {id: {not: id}}],

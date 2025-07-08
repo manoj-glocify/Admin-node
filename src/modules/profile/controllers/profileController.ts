@@ -1,5 +1,6 @@
 import {Request, Response, NextFunction} from "express";
 import {User} from "@prisma/client";
+import {Express} from "express";
 import {UpdateProfileDto, ChangePasswordDto} from "../dto/profile.dto";
 import {AppError} from "../../../middleware/errorHandler";
 import prisma from "../../../lib/prisma";
@@ -9,6 +10,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: User;
+      file?: Express.Multer.File;
     }
   }
 }
@@ -19,12 +21,12 @@ export const getProfile = async (
   next: NextFunction
 ) => {
   try {
-    if (!req.user?.id) {
+    if (!(req.user && (req.user as any).id)) {
       throw new AppError("Unauthorized", 401);
     }
 
     const user = await prisma.user.findUnique({
-      where: {id: req.user.id},
+      where: {id: (req.user as any).id},
       include: {
         role: {
           include: {
@@ -50,14 +52,14 @@ export const updateProfile = async (
   next: NextFunction
 ) => {
   try {
-    if (!req.user?.id) {
+    if (!(req.user && (req.user as any).id)) {
       throw new AppError("Unauthorized", 401);
     }
 
     const {firstName, lastName, email} = req.body as UpdateProfileDto;
 
     // Check if email is already taken by another user
-    if (email && email !== req.user.email) {
+    if (email && email !== (req.user as any).email) {
       const existingUser = await prisma.user.findUnique({
         where: {email},
       });
@@ -68,7 +70,7 @@ export const updateProfile = async (
     }
 
     const updatedUser = await prisma.user.update({
-      where: {id: req.user.id},
+      where: {id: (req.user as any).id},
       data: {
         firstName,
         lastName,
@@ -91,14 +93,14 @@ export const changePassword = async (
   next: NextFunction
 ) => {
   try {
-    if (!req.user?.id) {
+    if (!(req.user && (req.user as any).id)) {
       throw new AppError("Unauthorized", 401);
     }
 
     const {currentPassword, newPassword} = req.body as ChangePasswordDto;
 
     const user = await prisma.user.findUnique({
-      where: {id: req.user.id},
+      where: {id: (req.user as any).id},
     });
 
     if (!user) {
@@ -115,7 +117,7 @@ export const changePassword = async (
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.user.update({
-      where: {id: req.user.id},
+      where: {id: (req.user as any).id},
       data: {password: hashedPassword},
     });
     res.json({message: "Password updated successfully"});
@@ -130,7 +132,7 @@ export const updateProfilePic = async (
   next: NextFunction
 ) => {
   try {
-    if (!req.user?.id) {
+    if (!(req.user && (req.user as any).id)) {
       throw new AppError("Unauthorized", 401);
     }
 
@@ -143,7 +145,7 @@ export const updateProfilePic = async (
     }`;
 
     const updatedUser = await prisma.user.update({
-      where: {id: req.user.id},
+      where: {id: (req.user as any).id},
       data: {avatar: imagePath},
     });
 

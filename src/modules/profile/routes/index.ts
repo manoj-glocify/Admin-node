@@ -9,12 +9,14 @@ import {
 import {validateRequest} from "../../../middleware/validateRequest";
 import {authenticate} from "../../../middleware/authenticate";
 import multer from "multer";
+import { Request } from "express";
+import { Express } from "express";
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: function (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
     cb(null, "uploads/"); // Ensure this folder exists
   },
-  filename: function (req, file, cb) {
+  filename: function (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) {
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
