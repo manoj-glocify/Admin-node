@@ -184,6 +184,16 @@ npm run prisma:studio
    - Apply all migrations
    - Run seed scripts (if any)
 
+## Database Seeding
+
+To populate the database with initial data (such as the Super Admin user, roles, and permissions), run:
+
+```
+npm run prisma:seed
+```
+
+This will execute the Prisma seed script located at `prisma/seed.ts`.
+
 ## API Endpoints
 
 ### Authentication
