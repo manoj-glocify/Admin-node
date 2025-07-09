@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   // 1. Create Super Admin role with all permissions
   const allPermissions = [
+    { module: 'dashboard', actions: ['read'] },
     { module: 'users', actions: ['create', 'read', 'update', 'delete'] },
     { module: 'roles', actions: ['create', 'read', 'update', 'delete'] },
     { module: 'permissions', actions: ['create', 'read', 'update', 'delete'] },
